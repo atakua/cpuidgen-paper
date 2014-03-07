@@ -1,0 +1,38 @@
+% Encoding: UTF-8
+% Build with: pdflatex
+% Bibliography engine: bibtex8
+% Should be a minimal set of packages and syntax bloat to be able to convert to HTML, RTF etc
+
+\documentclass[a4paper,10pt,oneside,unicode]{article}
+\usepackage[top=2cm,left=2.5cm,right=2cm,bottom=3cm]{geometry}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[english]{babel} % no Russian
+\usepackage[pdftex]{graphicx}
+\usepackage[pdftex]{hyperref}
+\usepackage{indentfirst}
+
+\hypersetup{colorlinks=true, linkcolor=black, filecolor=black, urlcolor=black,pdfauthor=Grigory Rechistov <grigory.rechistov@phystech.edu>,pdftitle=CPUID Simulation of Intel Processors}
+
+\author{Grigory Rechistov\thanks{\texttt{grigory.rechistov@phystech.edu}}}
+\title{CPUID Simulation of Intel Processors}
+\date{\today}
+
+\newcommand{\abbr}{\emph{англ. }{}}
+\newcommand{\todo}[1][]{\textcolor{red}{TODO #1}}
+\newcommand{\othercopyright}{\textsuperscript{*}}
+\begin{document}
+
+\maketitle
+
+\section {Introduction}
+
+\todo{Write me}
+
+\bibliographystyle{ugost2008s}
+\bibliography{art} % use bibtex8, NO SPACES HERE!
+
+\end{document}
