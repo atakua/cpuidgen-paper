@@ -17,7 +17,7 @@
 
 \hypersetup{colorlinks=true, linkcolor=black, filecolor=black, urlcolor=black,pdfauthor=Grigory Rechistov <grigory.rechistov@phystech.edu>,pdftitle=CPUID Simulation of Intel Processors}
 
-\author{Grigory Rechistov\thanks{\texttt{grigory.rechistov@phystech.edu}}}
+\author{Grigory Rechistov\thanks{\texttt{grigory.rechistov@phystech.edu}} \and Name Surname\thanks{\texttt{email@mail.com}}}
 \title{CPUID Simulation of Intel Processors}
 \date{\today}
 
@@ -28,11 +28,60 @@
 
 \maketitle
 
+\tableofcontents
+
 \section {Introduction}
 
 \todo{Write me}
 
-\bibliographystyle{ugost2008s}
+\subsection{Contributions}
+In this paper we make the following contributions.
+\begin{enumerate}
+\item Evaluate and compare existing means of processor features identification of different architectures.
+\item Describe, implement and evaluate a structured solution to the simulation of CPUID instruction of Intel IA-32.
+\end{enumerate}
+
+\section{Overview of Processor Identification}
+
+\subsection{MIPS}
+\subsection{ARM}
+\subsection{PowerPC}
+
+\subsection{Intel IA-64 (Itanium)}
+
+\cite{itanium-sdm}
+
+\subsection{Intel IA-32 and Intel 64}
+
+The common PC architecture, starting from Intel Pentium and its clones, provides \texttt{CPUID}~\cite{intelmanual-7vols} instruction. 
+
+\begin{itemize}
+\item Leaves
+\item Subleaves
+\item Registers
+\item Non-constant values.
+
+\end{itemize}
+
+\section{Existing Approaches to CPUID Simulation}
+
+\subsection{Bochs}
+
+\subsection{Xen}
+
+\subsection{Qemu}
+
+\subsection{Simics}
+
+\section{The Structured Approach}
+
+\section{Evaluation}
+
+\section{Conclusions}
+
+\section{Acknowledgements}
+
+\bibliographystyle{ieeepes}
 \bibliography{art} % use bibtex8, NO SPACES HERE!
 
 \end{document}
