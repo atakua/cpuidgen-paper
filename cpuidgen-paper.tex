@@ -55,15 +55,31 @@ In this paper we make the following contributions.
 
 The common PC architecture, starting from Intel Pentium and its clones, provides \texttt{CPUID}~\cite{intelmanual-7vols} instruction. 
 
+There is a number of complications that have resulted from long uncontrolled expansion of the CPUID
+
+\paragraph{Elements adressing}
+
 \begin{itemize}
 \item Leaves
 \item Subleaves
 \item Registers
-\item Non-constant values.
-
+\item Bit range
 \end{itemize}
 
+
+\paragraph{Non-constant values} Firmware is able to suppress certain features indicated by CPUID by manipulating bits of model specific register (MSR) IA32\_MISC\_ENABLE. For example: \todo{NX, Leaf3, 1GB pages}
+
+\paragraph{Topology-varaible elements}
+
+Finally, it should be noted that, besides EAX, EBX, ECX, EDX, one more register may be affected by CPUID, namely IA32\_SIGNATURE \todo.
+
 \section{Existing Approaches to CPUID Simulation}
+
+What is required from a CPUId model.
+\begin{itemize}
+\item Be accurate \todo
+\item Be configurable \todo
+\end{itemize}
 
 \subsection{Bochs}
 
