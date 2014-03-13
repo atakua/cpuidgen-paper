@@ -15,10 +15,10 @@
 \usepackage[pdftex]{hyperref}
 \usepackage{indentfirst}
 
-\hypersetup{colorlinks=true, linkcolor=black, filecolor=black, urlcolor=black,pdfauthor=Grigory Rechistov <grigory.rechistov@phystech.edu>,pdftitle=CPUID Simulation of Intel Processors}
+\hypersetup{colorlinks=true, linkcolor=black, filecolor=black, urlcolor=black,pdfauthor=Grigory Rechistov <grigory.rechistov@phystech.edu>,pdftitle=Simulation of CPUID of Intel Architecture}
 
 \author{Grigory Rechistov\thanks{\texttt{grigory.rechistov@phystech.edu}} \and Name Surname\thanks{\texttt{email@mail.com}}}
-\title{CPUID Simulation of Intel Processors}
+\title{Simulation of CPUID of Intel Architecture}
 \date{\today}
 
 \newcommand{\abbr}{\emph{англ. }{}}
@@ -55,10 +55,14 @@ In this paper we make the following contributions.
 
 The common PC architecture, starting from Intel Pentium and its clones, provides \texttt{CPUID}~\cite{intelmanual-7vols} instruction. 
 
-There is a number of complications that have resulted from long uncontrolled expansion of the CPUID
+Since its inception it has been extended numerous number of times.
+
+
+There is a number of complications that have resulted from long uncontrolled expansion of the CPUID.
 
 \paragraph{Elements adressing}
 
+To inspect a value of a particular
 \begin{itemize}
 \item Leaves
 \item Subleaves
@@ -75,7 +79,7 @@ Finally, it should be noted that, besides EAX, EBX, ECX, EDX, one more register 
 
 \section{Existing Approaches to CPUID Simulation}
 
-What is required from a CPUId model.
+What is required from a CPUID model.
 \begin{itemize}
 \item Be accurate \todo
 \item Be configurable \todo
@@ -90,6 +94,23 @@ What is required from a CPUId model.
 \subsection{Simics}
 
 \section{The Structured Approach}
+
+The described approach
+
+\begin{enumerate}
+\item
+\item
+\item
+\end{enumerate}
+
+It has the following advantages
+
+\begin{itemize}
+\item Uses natural unit of configuration state --- a field.
+\item In the meantime, it allows its users to operate in terms of 32 bit leaves values which are more convenient and compact in many cases.
+\item
+\end{itemize}
+
 
 \section{Evaluation}
 
