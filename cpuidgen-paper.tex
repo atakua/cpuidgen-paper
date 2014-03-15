@@ -105,6 +105,31 @@ IBM System z10~\cite{ibm-system-z10} provides STSI and STIDP instructions. \todo
 
 PowerPC~\cite{powerpc64-arch} offers a 32-bit PVR register that contains just version and revision numbers.
 
+\todo{See also}
+
+\url{http://cache.freescale.com/files/archives/doc/support_info/PPCPVR.pdf}
+
+\subsection{SPARC}
+
+SPARC~\cite{weaver1994sparc}
+
+\todo
+
+FSR\_version
+
+Version Register VER 
+
+\begin{figure}[htbp]
+\bytefieldsetup{bitwidth=0.22cm, endianness = big}
+\centering
+\begin{bytefield}[]{64}
+    \bitheader{63,48,47,32,31,24,23,16,15,8,7,5,4,0} \\
+    \bitbox{16}{manuf} & \bitbox{16}{impl} & \bitbox{8}{mask} & \bitbox{8}{---} & \bitbox{8}{maxtl} & \bitbox{3}{---} & \bitbox{5}{maxwin}
+\end{bytefield}
+\caption{SPARC VER register}\label{fig:sparc-ver}
+\end{figure}
+
+
 \subsection{Intel IA-64 (Itanium)}
 
 Intel Itanium\texttrademark~\cite{itanium-sdm} was designed later after the original 80x86 series and was meant to supplant it. A set of \cpuid registers is used for identification purposes. The set's design somewhat resembles IA-32 \cpuid instruction (discussed later) --- its register numbers loosely resemble leaves of the latter. Five registers are guaranteed to be present, and bits 0--7 of \cpuid[3] store the actual size of the register set (thus it is limited to 256 entries).
