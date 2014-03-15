@@ -17,11 +17,15 @@
 
 \hypersetup{colorlinks=true, linkcolor=black, filecolor=black, urlcolor=black,pdfauthor=Grigory Rechistov <grigory.rechistov@phystech.edu>,pdftitle=Simulation of CPUID of Intel Architecture}
 
+% Extra fancy packages go here
+\usepackage{bytefield}
+
 \author{Grigory Rechistov\thanks{Moscow Institute of Physics and Technology, \texttt{grigory.rechistov@phystech.edu}} \and Name Surname\thanks{\texttt{email@mail.com}}}
 \title{Simulation of CPUID of Intel Architecture}
 \date{\today}
 
-\newcommand{\abbr}{\emph{англ. }{}}
+\newcommand{\cpuid}{\textsc{cpuid} }
+
 \newcommand{\todo}[1][]{\textcolor{red}{TODO #1}}
 \newcommand{\othercopyright}{\textsuperscript{*}}
 \begin{document}
@@ -38,27 +42,147 @@
 In this paper we make the following contributions.
 \begin{enumerate}
 \item Evaluate and compare existing means of processor features identification of different architectures.
-\item Describe, implement and evaluate a structured solution to the simulation of CPUID instruction of Intel IA-32.
+\item Describe, implement and evaluate a structured solution to the simulation of \cpuid instruction of Intel IA-32.
 \end{enumerate}
 
 \section{Overview of Processor Identification}
 
 \subsection{MIPS}
+
+This architecture processor identification with PRid register~\cite{mips-arch}, which is the 15\textsuperscript{th} register in Coprocessor 0. It contains 32 bits of information (Fig.~\ref{fig:mips-prid}), part of which is vendor--specific.
+
+\begin{figure}[htbp]
+\bytefieldsetup{bitwidth=0.36cm, endianness = big}
+\centering
+\begin{bytefield}[]{32}
+    \bitheader{31,24,23,16,15,8,7,0} \\
+    \bitbox{8}{Company Options} & \bitbox{8}{Company ID} & \bitbox{8}{Processor ID} & \bitbox{8}{Revision}
+\end{bytefield}
+\caption{MIPS PRid register fields}\label{fig:mips-prid}
+\end{figure}
+
+
+\todo{Check this}
+
+\url{http://hwdb.mipt.cc/MIPS_PRId_register}
+
+\url{http://code.google.com/p/phantomuserland/source/browse/trunk/phantom/dev/mips/cpuid.c?r=1094}
+
+\url{http://www.imgtec.com/mips/mips32-architecture.asp}
+
 \subsection{ARM}
+
+The popular RISC architecture provides certain means of a processor identification with \cpuid base register~\cite{arm-cpuid}. It contains 32 bits of information (Fig.~\ref{fig:arm-cpuid}).
+
+\todo{Chehk this} 
+
+\url{http://infocenter.arm.com/help/topic/com.arm.doc.dai0099c/DAI0099C_core_type_rev_id.pdf}
+
+\url{http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0363e/ch01s11s01.html}
+
+\url{http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0363e/Bcgdjadd.html}
+
+\url{http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0388f/Babififh.html}
+
+\url{http://forum.xda-developers.com/showthread.php?t=480226}
+
+\begin{figure}[htbp]
+\bytefieldsetup{bitwidth=0.36cm, endianness = big}
+\centering
+\begin{bytefield}[]{32}
+    \bitheader{31,24,23,20,19,16,15,4,3,0} \\
+    \bitbox{8}{Implementer} & \bitbox{4}{Variant} & \bitbox{4}{\texttt{0xC}} & \bitbox{12}{Part No} & \bitbox{4}{Revision}
+\end{bytefield}    
+\caption{ARM \cpuid{} base register fields}\label{fig:arm-cpuid}
+\end{figure}
+
+Examples of values~\cite{xda-arm-id}: Intel PXA272 (P535) -- 0x69054117, Qualcomm MSM7200A --- 0x4117b362.
+
+\subsection{IBM System z}
+IBM System z10~\cite{ibm-system-z10} provides STSI and STIDP instructions. \todo{Expand}
+
 \subsection{PowerPC}
+
+PowerPC~\cite{powerpc64-arch} offers a 32-bit PVR register that contains just version and revision numbers.
 
 \subsection{Intel IA-64 (Itanium)}
 
-\cite{itanium-sdm}
+Intel Itanium\texttrademark~\cite{itanium-sdm} was designed later after the original 80x86 series and was meant to supplant it. A set of \cpuid registers is used for identification purposes. The set's design somewhat resembles IA-32 \cpuid instruction (discussed later) --- its register numbers loosely resemble leaves of the latter. Five registers are guaranteed to be present, and bits 0--7 of \cpuid[3] store the actual size of the register set (thus it is limited to 256 entries).
+
+An example of Itanium \cpuid registers content is given on Fig.~\ref{fig:itanium-cpuid}.
+
+\begin{figure}
+    \centering
+    \todo{Collect it}
+    
+\caption{Contents \cpuid registers of Intel Itanium. }\label{fig:itanium-cpuid}
+\end{figure} 
+
 
 \subsection{Intel IA-32 and Intel 64}
 
-The common PC architecture, starting from Intel Pentium and its clones, provides \texttt{CPUID}~\cite{intelmanual-7vols} instruction. 
+The common PC architecture, starting from Intel Pentium and its clones, provides \cpuid~\cite{intelmanual-7vols, amd-sdm-vol1} instruction. 
 
 Since its inception it has been extended numerous number of times.
 
 
-There is a number of complications that have resulted from long uncontrolled expansion of the CPUID.
+On Figure~\ref{fig:real-hw} an output of all defined leaves and subleaves for an Intel processor is demonstrated. The resulting table contains 25 tuples of 4 values of 32 bit width each, total of more than 3 kb of information. Essentially a number of values can be deduced from it.
+\begin{itemize}
+    \item Processor producer brand (leaf 0) and SKU naming (leaves 0x80000002--0x80000004).
+    \item Availablity of ISA extensions such as 64 bit mode, SSEx, AVX, MOVBE etc.
+    \item Cache configuration of all layers, both in legacy format (leaf 2) and in current format (leaf 4 with subleaves)
+    \item Multi-processor configuration knowledge, such as availability of Intel HyperThreading, relative position inside CPU package (topology), presence of APIC (interrupt controller)
+    \item Numerous architectural varaibles, such as addresses widths (leaf 0x80000008), availability of dynamic frequency scaling etc.
+\end{itemize}
+
+
+\begin{figure}[htbp]
+\centering
+\begin{verbatim}
+Leaf             Subleaf         EAX         EBX        ECX          EDX
+------------------------------------------------------------------------
+           0           0         0xd  0x756e6547  0x6c65746e  0x49656e69
+         0x1           0     0x306a9   0x6100800  0x7f9ae3bf  0xbfebfbff
+         0x2           0  0x76035a01    0xf0b0ff           0    0xca0000
+         0x4           0  0x1c004121   0x1c0003f        0x3f           0
+         0x4         0x1  0x1c004122   0x1c0003f        0x3f           0
+         0x4         0x2  0x1c004143   0x1c0003f       0x1ff           0
+         0x4         0x3  0x1c03c163   0x2c0003f      0x1fff         0x6
+         0x5           0        0x40        0x40         0x3      0x1120
+         0x6           0        0x77         0x2         0x9           0
+         0x7           0           0       0x281           0           0
+         0xa           0   0x7300803           0           0       0x603
+         0xb           0         0x1         0x1       0x100         0x6
+         0xb         0x1         0x4         0x4       0x201         0x6
+         0xb         0x2           0           0         0x2         0x6
+         0xb         0x3           0           0         0x3         0x6
+         0xd           0         0x7       0x340       0x340           0
+         0xd         0x1         0x1           0           0           0
+         0xd         0x2       0x100       0x240           0           0
+  0x80000000           0  0x80000008           0           0           0
+  0x80000001           0           0           0         0x1  0x28100800
+  0x80000002           0  0x20202020  0x20202020  0x65746e49  0x2952286c
+  0x80000003           0  0x726f4320  0x4d542865  0x35692029  0x3534332d
+  0x80000004           0  0x50432030  0x20402055  0x30312e33    0x7a4847
+  0x80000006           0           0           0   0x1006040           0
+  0x80000007           0           0           0           0       0x100
+  0x80000008           0      0x3024           0           0           0
+\end{verbatim}
+
+    \caption{Output of \cpuid instruction obtained for Intel\textregistered Core\texttrademark i5-3450 using \texttt{ggg-cpuid}~\cite{ggg-cpuid}}\label{fig:real-hw}
+\end{figure}
+
+\section{What is so hard about Intel CPUID}
+
+A complete definition of \cpuid in~\cite{intelmanual-7vols} takes about 40 pages.
+
+There is a number of complications that have resulted from long uncontrolled expansion of the \cpuid.
+
+\paragraph{Multiple Vendors Influence} Until recently, there were numerous CPU vendors that offered processors compatible with Intel architecture, including IBM, Cyrix, VIA, Centaur, Transmeta etc. By 2014, only two companies remain --- Intel itself and AMD. Competition lead to the numerous small and subtle but essential differences in implementation. Until \cpuid was introduced, 
+
+A robust identification of processor brand and model required surprisingly intricate methods~\cite{cpuid-wars}.
+
+
 
 \paragraph{Elements adressing}
 
@@ -71,15 +195,15 @@ To inspect a value of a particular
 \end{itemize}
 
 
-\paragraph{Non-constant values} Firmware is able to suppress certain features indicated by CPUID by manipulating bits of model specific register (MSR) IA32\_MISC\_ENABLE. For example: \todo{NX, Leaf3, 1GB pages}
+\paragraph{Non-constant values} Firmware is able to suppress certain features indicated by \cpuid by manipulating bits of model specific register (MSR) IA32\_MISC\_ENABLE. For example: \todo{NX, Leaf3, 1GB pages}
 
 \paragraph{Topology-varaible elements}
 
-Finally, it should be noted that, besides EAX, EBX, ECX, EDX, one more register may be affected by CPUID, namely IA32\_SIGNATURE \todo.
+Finally, it should be noted that, besides EAX, EBX, ECX, EDX, one more register may be affected by \cpuid, namely IA32\_SIGNATURE \todo.
 
 \section{Existing Approaches to CPUID Simulation}
 
-What is required from a CPUID model.
+What is required from a \cpuid model.
 \begin{itemize}
 \item Be accurate \todo
 \item Be configurable \todo
@@ -97,12 +221,6 @@ What is required from a CPUID model.
 
 The described approach
 
-\begin{enumerate}
-\item
-\item
-\item
-\end{enumerate}
-
 It has the following advantages
 
 \begin{itemize}
@@ -112,9 +230,20 @@ It has the following advantages
 \end{itemize}
 
 
+
 \section{Evaluation}
 
+\subsection{Compatibility with existing code}
+
+“legacy” 
+
+\subsection{Extensions}
+
+\todo Field flags, such as “hidden”.
+
 \section{Conclusions}
+
+In this paper we described our approach to simulation of a single but complex processor instruction \cpuid. 
 
 \section{Acknowledgements}
 
