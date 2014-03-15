@@ -34,11 +34,19 @@
 
 \tableofcontents
 
+\begin{abstract}
+    
+   \noindent In this paper we give an overview of existing microprocessor features identification facilities. Then we describe our approach to implementation of a software model of Intel IA-32 \cpuid instruction. The described solution allows to define all recent CPUs' features, as well as future extensions. Our model was incorporated into the Wind River Simics\othercopyright simulator framework.
+    
+    \noindent Key words: cpu identification, cpu simulation, CPUID, Simics.
+\end{abstract}
+
 \section {Introduction}
 
 \todo{Write me}
 
 \subsection{Contributions}
+
 In this paper we make the following contributions.
 \begin{enumerate}
 \item Evaluate and compare existing means of processor features identification of different architectures.
@@ -47,9 +55,11 @@ In this paper we make the following contributions.
 
 \section{Overview of Processor Identification}
 
+This section outlines mechanisms for processor identification offered by several general purpose microprocessor architectures. We do not attempt to give exhaustive descriptions here, but only to reveal data that will allow us to see differences and similarities. More details can be found in documentation to respective architectures.
+
 \subsection{MIPS}
 
-This architecture processor identification with PRid register~\cite{mips-arch}, which is the 15\textsuperscript{th} register in Coprocessor 0. It contains 32 bits of information (Fig.~\ref{fig:mips-prid}), part of which is vendor--specific.
+This architecture processor identification with PRid register~\cite{mips-arch}, which is the 15\textsuperscript{th} register in Coprocessor~0. It contains 32 bits of information (Fig.~\ref{fig:mips-prid}), part of which is vendor--specific.
 
 \begin{figure}[htbp]
 \bytefieldsetup{bitwidth=0.36cm, endianness = big}
@@ -96,10 +106,10 @@ The popular RISC architecture provides certain means of a processor identificati
 \caption{ARM \cpuid{} base register fields}\label{fig:arm-cpuid}
 \end{figure}
 
-Examples of values~\cite{xda-arm-id}: Intel PXA272 (P535) -- 0x69054117, Qualcomm MSM7200A --- 0x4117b362.
+Examples of values~\cite{xda-arm-id}: Intel (XScale) PXA272 -- 0x69054117, Qualcomm MSM7200A --- 0x4117b362.
 
 \subsection{IBM System z}
-IBM System z10~\cite{ibm-system-z10} provides STSI and STIDP instructions. \todo{Expand}
+IBM System z10~\cite{ibm-system-z10} provides STSI and STIDP instructions. The information is rather scarce on the subject. \todo{Expand}
 
 \subsection{PowerPC}
 
@@ -111,20 +121,14 @@ PowerPC~\cite{powerpc64-arch} offers a 32-bit PVR register that contains just ve
 
 \subsection{SPARC}
 
-SPARC~\cite{weaver1994sparc}
-
-\todo
-
-FSR\_version
-
-Version Register VER 
+The SPARC standard~\cite{weaver1994sparc} leaves quite a number of details implementation specific. To distinct between version a 64-bit register VER is defined (Fig.~\ref{fig:sparc-ver}).
 
 \begin{figure}[htbp]
-\bytefieldsetup{bitwidth=0.22cm, endianness = big}
+\bytefieldsetup{bitwidth=0.25cm, endianness = big}
 \centering
 \begin{bytefield}[]{64}
     \bitheader{63,48,47,32,31,24,23,16,15,8,7,5,4,0} \\
-    \bitbox{16}{manuf} & \bitbox{16}{impl} & \bitbox{8}{mask} & \bitbox{8}{---} & \bitbox{8}{maxtl} & \bitbox{3}{---} & \bitbox{5}{maxwin}
+    \bitbox{16}{Manufacturer} & \bitbox{16}{Implementation} & \bitbox{8}{Revision} & \bitbox{8}{---} & \bitbox{8}{\footnotesize{Max trap levels}} & \bitbox{3}{---} & \bitbox{5}{\footnotesize{Max window}}
 \end{bytefield}
 \caption{SPARC VER register}\label{fig:sparc-ver}
 \end{figure}
@@ -140,7 +144,7 @@ An example of Itanium \cpuid registers content is given on Fig.~\ref{fig:itanium
     \centering
     \todo{Collect it}
     
-\caption{Contents \cpuid registers of Intel Itanium. }\label{fig:itanium-cpuid}
+\caption{Contents \cpuid registers of Intel Itanium }\label{fig:itanium-cpuid}
 \end{figure} 
 
 
@@ -151,7 +155,7 @@ The common PC architecture, starting from Intel Pentium and its clones, provides
 Since its inception it has been extended numerous number of times.
 
 
-On Figure~\ref{fig:real-hw} an output of all defined leaves and subleaves for an Intel processor is demonstrated. The resulting table contains 25 tuples of 4 values of 32 bit width each, total of more than 3 kb of information. Essentially a number of values can be deduced from it.
+On Figure~\ref{fig:real-hw} an output of all defined leaves and subleaves for a modern Intel processor (microarchitecture Ivy Bridge) is demonstrated. The resulting table contains 25 tuples of 4 values of 32 bit width each, total of more than 3 kb of information. Essentially a number of values can be deduced from it.
 \begin{itemize}
     \item Processor producer brand (leaf 0) and SKU naming (leaves 0x80000002--0x80000004).
     \item Availablity of ISA extensions such as 64 bit mode, SSEx, AVX, MOVBE etc.
@@ -197,17 +201,41 @@ Leaf             Subleaf         EAX         EBX        ECX          EDX
     \caption{Output of \cpuid instruction obtained for Intel\textregistered Core\texttrademark i5-3450 using \texttt{ggg-cpuid}~\cite{ggg-cpuid}}\label{fig:real-hw}
 \end{figure}
 
+\subsection{Comparison of Processor Identification}
+
+Based on the presented data several conclusions can be made.
+\begin{itemize}
+    \item CPU identification facilities differ greatly between architectures. They may be represented by instructions, registers, or groups of both.
+    \item The most common thing that can be specified through a \cpuid is a vendor identification. The next on popularity is indication of ISA extensions.
+    
+    \item The complexity/completeness of \cpuid facilities depends on whether there are requirements to run the same binary code on hardware from multiple vendors and/or of different generations. If, in order to perform efficiently, software must “know” a list of supported instruction extensions and other types of model specific configuration, there has to be a documented way to obtain such knowledge.
+    \item Conversely, CPUs provided by a single vendor and/or designed for specific software usually provide less means of self-identification. Most microcontrollers for embedded applications hardly provide even an idea of \cpuid, compared to general purpose processors, because software is often written to be run on a specific HW; binaries are not meant to be moved to some other incarnation of the same architecture.
+    
+%     \item It is basically hard to define completely what identification facilities should store.
+\end{itemize}
+
+
 \section{What is so hard about Intel CPUID}
 
-A complete definition of \cpuid in~\cite{intelmanual-7vols} takes about 40 pages.
+We now concentrate solely on the Intel IA-32 architecture and the single \cpuid instruction. A complete definition of \cpuid in~\cite{intelmanual-7vols} takes about 40 pages.
 
 There is a number of complications that have resulted from long uncontrolled expansion of the \cpuid.
 
-\paragraph{Multiple Vendors Influence} Until recently, there were numerous CPU vendors that offered processors compatible with Intel architecture, including IBM, Cyrix, VIA, Centaur, Transmeta etc. By 2014, only two companies remain --- Intel itself and AMD. Competition lead to the numerous small and subtle but essential differences in implementation. Until \cpuid was introduced, 
+\paragraph{Influence of Multiple Vendors} Until recently, there were numerous CPU vendors that offered processors compatible with Intel architecture, including IBM, Cyrix, VIA, Centaur, Transmeta etc. By 2014, only two companies remain --- Intel itself and AMD. Competition lead to the numerous small and subtle but essential differences in implementation. Until \cpuid was introduced, 
 
-A robust identification of processor brand and model required surprisingly intricate methods~\cite{cpuid-wars}.
+In the past, a robust identification of IA-32 processor brand and model required surprisingly intricate methods~\cite{cpuid-wars}. At present times, things are somewhat well documented. But then, another
+
+\paragraph{Long history that lead to extremely long list of extensions.} With 40 years of backwards-compatible development the IA-32 architecture collected a number of additions. Consider a list of flags which a modern GNU/Linux operating system shows for a \cpuid of the laptop this paper is being written on (Fig.~\ref{fig:flags}). It should be noted that only a part of information from \cpuid is actually present on this list.
 
 
+\begin{figure}
+\noindent\texttt{flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx rdtscp lm constant\_tsc arch\_perfmon pebs bts nopl xtopology nonstop\_tsc aperfmperf pni pclmulqdq dtes64 monitor ds\_cpl vmx est tm2 ssse3 cx16 xtpr pdcm pcid sse4\_1 sse4\_2 x2apic popcnt tsc\_deadline\_timer xsave avx lahf\_lm arat epb xsaveopt pln pts dtherm tpr\_shadow vnmi flexpriority ept vpid
+}
+\caption{Part of output of \texttt{cat /proc/cpuinfo} command on GNU/Linux on a recent Intel CPU}\label{fig:flags}
+\end{figure} 
+
+
+Now, moving to details of \cpuid operation, we will show more complexity that arises from the semantics of \cpuid instruction.
 
 \paragraph{Elements adressing}
 
@@ -228,7 +256,7 @@ Finally, it should be noted that, besides EAX, EBX, ECX, EDX, one more register 
 
 \section{Existing Approaches to CPUID Simulation}
 
-What is required from a \cpuid model.
+Every software simulator, emulator or virtual machine of a recent (Pentium or later) IA-32 system must guarantee \cpuid operation of certain accuracyIf such tool is used for system firmware development, which is even more sensitive to identification information, the following requirements should be.
 \begin{itemize}
 \item Be accurate \todo
 \item Be configurable \todo
@@ -270,7 +298,12 @@ It has the following advantages
 
 In this paper we described our approach to simulation of a single but complex processor instruction \cpuid. 
 
+\paragraph{Model specific registers.} Besides \cpuid, processors of Intel architecture may have a quite extensive of model specific registers (MSRs), which can be read/written with \textsc{rdmsr/wrmsr} instructions, and also contain bits of processor identification. The simulation of MSRs is also an important aspect, but it is out of this paper focus. Other architectures may have similar facilities, e.g. special purpose registers (SPRs) in PowerPC. 
+
+
+
 \section{Acknowledgements}
+Thanks to my parents for raising an awesome me.
 
 \bibliographystyle{ieeepes}
 \bibliography{art} % use bibtex8, NO SPACES HERE!
