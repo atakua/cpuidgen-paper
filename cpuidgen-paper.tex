@@ -36,7 +36,7 @@
 
 \begin{abstract}
     
-   \noindent In this paper we give an overview of existing microprocessor features identification facilities. Then we describe our approach to implementation of a software model of Intel IA-32 \cpuid instruction. The described solution allows to define all recent CPUs' features, as well as future extensions. Our model was incorporated into the Wind River Simics\othercopyright simulator framework.
+   \noindent In this paper we give an overview of existing microprocessor features identification facilities. Then we describe our approach to implementation of a software model of Intel IA-32 \cpuid instruction. The described solution allows to define all recent {CPUs}' features, as well as future extensions. Our model was incorporated into the Wind River Simics\othercopyright simulator framework.
     
     \noindent Key words: cpu identification, cpu simulation, CPUID, Simics.
 \end{abstract}
@@ -160,7 +160,7 @@ On Figure~\ref{fig:real-hw} an output of all defined leaves and subleaves for a 
     \item Processor producer brand (leaf 0) and SKU naming (leaves 0x80000002--0x80000004).
     \item Availablity of ISA extensions such as 64 bit mode, SSEx, AVX, MOVBE etc.
     \item Cache configuration of all layers, both in legacy format (leaf 2) and in current format (leaf 4 with subleaves)
-    \item Multi-processor configuration knowledge, such as availability of Intel HyperThreading, relative position inside CPU package (topology), presence of APIC (interrupt controller)
+    \item Multi-processor configuration knowledge, such as availability of Intel HyperThreading, relative position inside {CPU} package (topology), presence of {APIC} (interrupt controller)
     \item Numerous architectural varaibles, such as addresses widths (leaf 0x80000008), availability of dynamic frequency scaling etc.
 \end{itemize}
 
@@ -205,11 +205,11 @@ Leaf             Subleaf         EAX         EBX        ECX          EDX
 
 Based on the presented data several conclusions can be made.
 \begin{itemize}
-    \item CPU identification facilities differ greatly between architectures. They may be represented by instructions, registers, or groups of both.
+    \item {CPU} identification facilities differ greatly between architectures. They may be represented by instructions, registers, or groups of both.
     \item The most common thing that can be specified through a \cpuid is a vendor identification. The next on popularity is indication of ISA extensions.
     
     \item The complexity/completeness of \cpuid facilities depends on whether there are requirements to run the same binary code on hardware from multiple vendors and/or of different generations. If, in order to perform efficiently, software must “know” a list of supported instruction extensions and other types of model specific configuration, there has to be a documented way to obtain such knowledge.
-    \item Conversely, CPUs provided by a single vendor and/or designed for specific software usually provide less means of self-identification. Most microcontrollers for embedded applications hardly provide even an idea of \cpuid, compared to general purpose processors, because software is often written to be run on a specific HW; binaries are not meant to be moved to some other incarnation of the same architecture.
+    \item Conversely, {CPUs} provided by a single vendor and/or designed for specific software usually provide less means of self-identification. Most microcontrollers for embedded applications hardly provide even an idea of \cpuid, compared to general purpose processors, because software is often written to be run on a specific HW; binaries are not meant to be moved to some other incarnation of the same architecture.
     
 %     \item It is basically hard to define completely what identification facilities should store.
 \end{itemize}
@@ -221,7 +221,7 @@ We now concentrate solely on the Intel IA-32 architecture and the single \cpuid 
 
 There is a number of complications that have resulted from long uncontrolled expansion of the \cpuid.
 
-\paragraph{Influence of Multiple Vendors} Until recently, there were numerous CPU vendors that offered processors compatible with Intel architecture, including IBM, Cyrix, VIA, Centaur, Transmeta etc. By 2014, only two companies remain --- Intel itself and AMD. Competition lead to the numerous small and subtle but essential differences in implementation. Until \cpuid was introduced, 
+\paragraph{Influence of Multiple Vendors} Until recently, there were numerous {CPU} vendors that offered processors compatible with Intel architecture, including IBM, Cyrix, VIA, Centaur, Transmeta etc. By 2014, only two companies remain --- Intel itself and AMD. Competition lead to the numerous small and subtle but essential differences in implementation. Until \cpuid was introduced, 
 
 In the past, a robust identification of IA-32 processor brand and model required surprisingly intricate methods~\cite{cpuid-wars}. At present times, things are somewhat well documented. But then, another
 
@@ -231,7 +231,7 @@ In the past, a robust identification of IA-32 processor brand and model required
 \begin{figure}
 \noindent\texttt{flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx rdtscp lm constant\_tsc arch\_perfmon pebs bts nopl xtopology nonstop\_tsc aperfmperf pni pclmulqdq dtes64 monitor ds\_cpl vmx est tm2 ssse3 cx16 xtpr pdcm pcid sse4\_1 sse4\_2 x2apic popcnt tsc\_deadline\_timer xsave avx lahf\_lm arat epb xsaveopt pln pts dtherm tpr\_shadow vnmi flexpriority ept vpid
 }
-\caption{Part of output of \texttt{cat /proc/cpuinfo} command on GNU/Linux on a recent Intel CPU}\label{fig:flags}
+\caption{Part of output of \texttt{cat /proc/cpuinfo} command on GNU/Linux on a recent Intel {CPU}}\label{fig:flags}
 \end{figure} 
 
 
@@ -264,11 +264,19 @@ Every software simulator, emulator or virtual machine of a recent (Pentium or la
 
 \subsection{Bochs}
 
+Bochs~\cite{bochs} \todo 
+
 \subsection{Xen}
+
+Xen~\cite{xen2006} \todo 
 
 \subsection{Qemu}
 
+Qemu~\cite{qemu} \todo 
+
 \subsection{Simics}
+
+Wind River Simics~\cite{simics} \todo
 
 \section{The Structured Approach}
 
