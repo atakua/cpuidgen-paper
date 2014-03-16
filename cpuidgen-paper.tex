@@ -115,7 +115,11 @@ IBM System z10~\cite{ibm-system-z10} provides STSI and STIDP instructions. The i
 
 PowerPC~\cite{powerpc64-arch} offers a 32-bit PVR register that contains just version and revision numbers.
 
+For ISA extensionsm a mechanism of APU (application processor units) is employed. MSR (machine state register) is used to store information of APUs available.
+
 \todo{See also}
+
+\url{http://lxr.linux.no/#linux+v3.13.5/arch/powerpc/kernel/cputable.c#L2245} --- identify\_cpu function
 
 \url{http://cache.freescale.com/files/archives/doc/support_info/PPCPVR.pdf}
 
@@ -313,7 +317,7 @@ In this paper we described our approach to simulation of a single but complex pr
 \section{Acknowledgements}
 Thanks to my parents for raising an awesome me.
 
-\bibliographystyle{ieeepes}
+\bibliographystyle{plain}
 \bibliography{art} % use bibtex8, NO SPACES HERE!
 
 \end{document}
