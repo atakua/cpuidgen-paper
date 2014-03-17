@@ -229,7 +229,6 @@ Based on the presented data several conclusions can be made.
 %     \item It is basically hard to define completely what identification facilities should store.
 \end{itemize}
 
-
 \section{What is so hard about Intel CPUID}
 
 We now concentrate solely on the Intel IA-32 architecture and the single \cpuid instruction. A complete definition of \cpuid in~\cite{intelmanual-7vols} takes about 40 pages.
@@ -242,13 +241,11 @@ In the past, a robust identification of IA-32 processor brand and model required
 
 \paragraph{Long history that lead to extremely long list of extensions.} With 40 years of backwards-compatible development the IA-32 architecture collected a number of additions. Consider a list of flags which a modern GNU/Linux operating system shows for a \cpuid of the laptop this paper is being written on (Fig.~\ref{fig:flags}). It should be noted that only a part of information from \cpuid is actually present on this list.
 
-
 \begin{figure}
 \noindent\texttt{flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx rdtscp lm constant\_tsc arch\_perfmon pebs bts nopl xtopology nonstop\_tsc aperfmperf pni pclmulqdq dtes64 monitor ds\_cpl vmx est tm2 ssse3 cx16 xtpr pdcm pcid sse4\_1 sse4\_2 x2apic popcnt tsc\_deadline\_timer xsave avx lahf\_lm arat epb xsaveopt pln pts dtherm tpr\_shadow vnmi flexpriority ept vpid
 }
 \caption{Part of output of \texttt{cat /proc/cpuinfo} command on GNU/Linux on a recent Intel {CPU}}\label{fig:flags}
 \end{figure} 
-
 
 Now, moving to details of \cpuid operation, we will show more complexity that arises from the semantics of \cpuid instruction.
 
@@ -262,8 +259,7 @@ To inspect a value of a particular
 \item Bit range
 \end{itemize}
 
-
-\paragraph{Non-constant values} Firmware is able to suppress certain features indicated by \cpuid by manipulating bits of model specific register (MSR) IA32\_MISC\_ENABLE. For example: \todo{NX, Leaf3, 1GB pages}
+\paragraph{Non-constant values} Firmware is able to suppress certain features indicated by \cpuid by manipulating bits of model specific register (MSR) IA32\_MISC\_ENABLE. CPUID leaves more than \texttt{0x3} and less than \texttt{0x80000000} are visible only when IA32\_MISC\_ENABLE.BOOT\_NT4[bit 22] is clear. For example, operating system of BIOS may disable MWAIT instruction by using IA32\_MISC\_ENABLE MSR; disabling MWAIT also clears corresponding CPUID feature flag. Software is also able to manage several architecture extensions and CPUID flags using control register CR4. For example operating system can set OSXSAVE flag to indicate that use of \texttt{XGETBV}, \texttt{XSAVE} and \texttt{XRSTOR} instructions is supported by general software.
 
 \paragraph{Topology-varaible elements}
 
