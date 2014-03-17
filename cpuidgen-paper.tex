@@ -71,6 +71,17 @@ This architecture processor identification with PRid register~\cite{mips-arch}, 
 \caption{MIPS PRid register fields}\label{fig:mips-prid}
 \end{figure}
 
+MIPS architecture also implements special register that contains information identifying the capabilities of floating point unit termed Floating Point Implementation Register (FIR)~\cite{mips32-vol1}. It's a read-only 32-bit register (Fig.~\ref{fig:mips-fir})
+
+\begin{figure}[htbp]
+\bytefieldsetup{bitwidth=0.5cm, endianness = big}
+\centering
+\begin{bytefield}[]{32}
+    \bitheader{31,28,27,24,23,22,21,20,19,18,17,16,15,8,7,0} \\
+    \bitbox{4}{00000} & \bitbox{4}{Impl} & \bitbox{1}{0} & \bitbox{1}{F64} & \bitbox{1}{L} & \bitbox{1}{W} & \bitbox{1}{3D} & \bitbox{1}{PS} & \bitbox{1}{D} & \bitbox{1}{S} & \bitbox{8}{ProcessorID} & \bitbox{8}{Revision}
+\end{bytefield}
+\caption{MIPS FIR register fields}\label{fig:mips-fir}
+\end{figure}
 
 \todo{Check this}
 
