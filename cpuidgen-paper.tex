@@ -137,7 +137,6 @@ The SPARC standard~\cite{weaver1994sparc} leaves quite a number of details imple
 \caption{SPARC VER register}\label{fig:sparc-ver}
 \end{figure}
 
-
 \subsection{Intel IA-64 (Itanium)}
 
 Intel Itanium\texttrademark~\cite{itanium-sdm} was designed later after the original 80x86 series and was meant to supplant it. A set of \cpuid registers is used for identification purposes. The set's design somewhat resembles IA-32 \cpuid instruction (discussed later) --- its register numbers loosely resemble leaves of the latter. Five registers are guaranteed to be present, and bits 0--7 of \cpuid[3] store the actual size of the register set (thus it is limited to 256 entries).
@@ -151,6 +150,7 @@ An example of Itanium \cpuid registers content is given on Fig.~\ref{fig:itanium
 \caption{Contents \cpuid registers of Intel Itanium }\label{fig:itanium-cpuid}
 \end{figure} 
 
+The \texttt{mov =cpuid[...]} instruction is defined to read a processor identification information.
 
 \subsection{Intel IA-32 and Intel 64}
 
