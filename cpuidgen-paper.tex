@@ -162,7 +162,7 @@ The SPARC~v9 standard~\cite{weaver1994sparc} leaves quite a number of details im
 
 Intel IA-64, also known as Itanium\texttrademark~\cite{itanium-sdm} was conceived after the original Intel 80x86 series and was meant to supplant it. A set of \cpuid registers is used for identification purposes. The set's design somewhat resembles IA-32 \cpuid instruction (discussed shortly after) --- its register numbers loosely resemble leaves of the latter. At the moment of this writing, all announced IA-64 systems offered up to five \cpuid registers. To have room for feature expansion, bits 0--7 of \textsc{cpuid[3]} store the actual size of the register set (limiting it to 256 entries).
 
-A \cpuid table for a modern Itanium system is given on Fig.~\ref{fig:itanium-cpuid}. Total capacity of it can be estimated as $5 \times 64 = 320$ bits.
+A \cpuid table for an Itanium 2 system is given on Fig.~\ref{fig:itanium-cpuid}. Total capacity of it can be estimated as $5 \times 64 = 320$ bits.
 
 \begin{figure}
     \centering
@@ -176,7 +176,7 @@ Leaf              Value
 0x4                 0x5
 \end{verbatim}
     
-\caption{Contents of \cpuid registers for an Intel Itanium 2 system using \texttt{ggg-cpuid}~\cite{ggg-cpuid}}\label{fig:itanium-cpuid}
+\caption{Contents of \cpuid registers for an Intel Itanium 9100 (code name Montvale) system using \texttt{ggg-cpuid}~\cite{ggg-cpuid}}\label{fig:itanium-cpuid}
 \end{figure} 
 
 % Result of cat /proc/cpuinfo on the Itanium host:
