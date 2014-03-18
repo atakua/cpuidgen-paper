@@ -136,7 +136,7 @@ IBM System z10~\cite{ibm-system-z10} provides STSI and STIDP instructions. The i
 
 PowerPC~\cite{powerpc64-arch} offers a 32-bit PVR register that contains just version and revision numbers.
 
-For ISA extensionsm a mechanism of APU (application processor units) is employed. MSR (machine state register) is used to store information of APUs available.
+For ISA extensions a mechanism of APU (application processor units) is employed. MSR (machine state register) is used to store information of APUs available.
 
 \todo{See also}
 
@@ -219,7 +219,7 @@ Since its inception it has been extended numerous number of times.\todo{Expand}
 On Figure~\ref{fig:real-hw} an output of all defined leaves and subleaves for a modern Intel processor (of microarchitecture Intel Ivy Bridge) is shown. The resulting table contains 25 tuples of 4 values of 32 bit width each, total of more than 3 kbit of information. Essentially a number of features can be deduced from it.
 \begin{itemize}
     \item Processor producer brand (leaf 0) and SKU naming (leaves 0x80000002--0x80000004).
-    \item Availablity of ISA extensions such as 64 bit mode, SSE2/3/4.1/4.2, AVX, MOVBE etc.
+    \item Availability of ISA extensions such as 64 bit mode, SSE2/3/4.1/4.2, AVX, MOVBE etc.
     \item Cache configuration of all layers, both in legacy format (leaf 2) and in current format (leaf 4 with subleaves).
     \item Multi-processor configuration knowledge, such as availability of Intel HyperThreading, relative position inside {CPU} package (topology at leaf 11), presence of {APIC} (interrupt controller).
     \item Numerous parameters for the implementation, such as addresses widths (leaf 0x80000008), availability of dynamic frequency scaling, supported debugging facilities etc.
@@ -306,13 +306,14 @@ To inspect a value of a particular
 
 \paragraph{Non-constant values} Firmware is able to suppress certain features indicated by \cpuid by manipulating bits of model specific register (MSR) IA32\_MISC\_ENABLE. CPUID leaves more than \texttt{0x3} and less than \texttt{0x80000000} are visible only when IA32\_MISC\_ENABLE.BOOT\_NT4[bit 22] is clear. For example, operating system of BIOS may disable MWAIT instruction by using IA32\_MISC\_ENABLE MSR; disabling MWAIT also clears corresponding CPUID feature flag. Software is also able to manage several architecture extensions and CPUID flags using control register CR4. For example operating system can set OSXSAVE flag to indicate that use of \texttt{XGETBV}, \texttt{XSAVE} and \texttt{XRSTOR} instructions is supported by general software.
 
-\paragraph{Topology-varaible elements}
+\paragraph{Topology-variable elements}
 
 Finally, it should be noted that, besides EAX, EBX, ECX, EDX, one more register may be affected by \cpuid, namely IA32\_SIGNATURE \todo.
 
 \section{Existing Approaches to CPUID Simulation}\label{sec:approaches}
 
-Every software simulator, emulator or virtual machine of a recent (Pentium or later) IA-32 system must guarantee \cpuid operation of certain accuracyIf such tool is used for system firmware development, which is even more sensitive to identification information, the following requirements should be.
+Every software simulator, emulator or virtual machine of a recent (Pentium or later) IA-32 system must guarantee \cpuid operation of certain accuracy. If such tool is used for system firmware development, which is even more sensitive to identification information, the following requirements should be.
+
 \begin{itemize}
 \item Be accurate \todo
 \item Be configurable \todo
@@ -324,7 +325,7 @@ Bochs~\cite{bochs} \todo
 
 \subsection{Xen}
 
-Xen~\cite{xen2006} \todo 
+Xen~\cite{xen2006} \todo *
 
 \subsection{Qemu}
 
@@ -346,8 +347,6 @@ It has the following advantages
 \item
 \end{itemize}
 
-
-
 \section{Evaluation}\label{sec:evaluation}
 
 \subsection{Compatibility with existing code}
@@ -364,9 +363,8 @@ In this paper we described our approach to simulation of a single but complex pr
 
 \paragraph{Model specific registers.} Besides \cpuid, processors of Intel architecture may have a quite extensive of model specific registers (MSRs), which can be read/written with \textsc{rdmsr/wrmsr} instructions, and also contain bits of processor identification. The simulation of MSRs is also an important aspect, but it is out of this paper focus. Other architectures may have similar facilities, e.g. special purpose registers (SPRs) in PowerPC. 
 
-
-
 \section*{Acknowledgements}
+
 Thanks to my parents for raising an awesome me.
 
 \bibliographystyle{plain}
