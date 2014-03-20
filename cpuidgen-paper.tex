@@ -103,31 +103,33 @@ MIPS architecture also implements special register that contains information to 
 
 \subsection{ARM}
 
-The popular RISC architecture provides certain means of a processor identification with \cpuid base register~\cite{arm-cpuid}. As with MIPS, it holds 32 bits of information (Fig.~\ref{fig:arm-cpuid}).
+The popular RISC architecture ARM provides two different ways to identified cores. This ways described in~\cite{arm-application-note99}.
 
-\todo{Chehk this} 
+The first way is to read info form the Register 0 of the System Control Coprocessor also called \cpuid base register~\cite{arm-cpuid}. As with MIPS, it holds 32 bits of information and look a bit differ for ARM7 core family (Fig.~\ref{fig:arm-cpuid-v7}) and ARM9 and later core families (Fig.~{fig:arm-cpuid-v9}).
 
-\url{http://infocenter.arm.com/help/topic/com.arm.doc.dai0099c/DAI0099C_core_type_rev_id.pdf}
-
-\url{http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0363e/ch01s11s01.html}
-
-\url{http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0363e/Bcgdjadd.html}
-
-\url{http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0388f/Babififh.html}
-
-\url{http://forum.xda-developers.com/showthread.php?t=480226}
+\begin{figure}[htbp]
+\bytefieldsetup{bitwidth=0.36cm, endianness = big}
+\centering
+\begin{bytefield}[]{32}
+    \bitheader{31,24,23,22,16,15,4,3,0} \\
+    \bitbox{8}{Implementer} & \bitbox{1}{A} & \bitbox{7}{Variant} & \bitbox{12}{Primary Part No} & \bitbox{4}{Revision}
+\end{bytefield}
+\caption{ARM7 Core Family \cpuid{} base register fields}\label{fig:arm-cpuid-v7}
+\end{figure}
 
 \begin{figure}[htbp]
 \bytefieldsetup{bitwidth=0.36cm, endianness = big}
 \centering
 \begin{bytefield}[]{32}
     \bitheader{31,24,23,20,19,16,15,4,3,0} \\
-    \bitbox{8}{Implementer} & \bitbox{4}{Variant} & \bitbox{4}{\texttt{0xC}} & \bitbox{12}{Part No} & \bitbox{4}{Revision}
-\end{bytefield}    
-\caption{ARM \cpuid{} base register fields}\label{fig:arm-cpuid}
+    \bitbox{8}{Implementer} & \bitbox{4}{Variant} & \bitbox{4}{Arch.} & \bitbox{12}{Primarily Part No} & \bitbox{4}{Revision}
+\end{bytefield}
+\caption{ARM9 and later Core Family \cpuid{} base register fields}\label{fig:arm-cpuid-v9}
 \end{figure}
 
 Examples of values~\cite{xda-arm-id}: Intel (XScale) PXA272 -- 0x69054117, Qualcomm MSM7200A --- 0x4117b362.
+
+The other way that ARM core can be identified is through a TAP ID~\cite{arm-application-note99} that used ton configure debug software and indicates the information about an ARM core.
 
 \subsection{IBM System z}
 IBM System z10~\cite{ibm-system-z10} provides STSI and STIDP instructions. The information is rather scarce on the subject. \todo{Expand}
