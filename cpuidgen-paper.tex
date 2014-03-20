@@ -132,7 +132,21 @@ Examples of values~\cite{xda-arm-id}: Intel (XScale) PXA272 -- 0x69054117, Qualc
 The other way that ARM core can be identified is through a TAP ID~\cite{arm-application-note99} that used ton configure debug software and indicates the information about an ARM core.
 
 \subsection{IBM System z}
-IBM System z10~\cite{ibm-system-z10} provides STSI and STIDP instructions. The information is rather scarce on the subject. \todo{Expand}
+IBM System z10~\cite{ibm-system-z10} provides \texttt{STSI} and \texttt{STIDP} instructions. The information is rather scarce on the subject. \todo{Expand}
+
+The \texttt{STSI} instruction used to determine processor model and model capacity identifier for the base configuration and for any additional changes through update actions.
+
+The \texttt{STIDP} instruction provides information about the processor type, serial number, and logical partition identifier (Fig.~\ref{fig:systemz-stidp}).
+
+\begin{figure}[htbp]
+\bytefieldsetup{bitwidth=0.25cm, endianness = big}
+\centering
+\begin{bytefield}[]{64}
+    \bitheader{63,48,47,32,31,8,7,0} \\
+    \bitbox{16}{Logical partition 2-digit indicator} & \bitbox{16}{Machine type number} & \bitbox{24}{CPU identification number} & \bitbox{8}{Version code}
+\end{bytefield}
+\caption{\texttt{STIDP} output}\label{fig:systemz-stidp}
+\end{figure}
 
 \subsection{PowerPC}
 
