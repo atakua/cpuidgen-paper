@@ -20,11 +20,15 @@
 % Extra fancy packages go here
 \usepackage{bytefield}
 
+\usepackage{tikz}
+\usetikzlibrary{shapes, calc, arrows, fit, positioning, decorations, patterns, decorations.pathreplacing, chains}
+
 \author{Grigory Rechistov\thanks{Moscow Institute of Physics and Technology, \texttt{grigory.rechistov@phystech.edu}} \and Name Surname\thanks{\texttt{email@mail.com}}}
 \title{Simulation of CPUID of Intel Architecture}
 \date{\today}
 
 \newcommand{\cpuid}{\textsc{cpuid} }
+\newcommand{\cpuidgen}{\textsc{cpuidgen} }
 
 \newcommand{\todo}[1][]{\textcolor{red}{TODO #1}}
 \newcommand{\othercopyright}{\textsuperscript{*}}
@@ -61,6 +65,7 @@ In this paper we make the following contributions.
 \begin{enumerate}
 \item Comparison of existing approaches to extensions/feature identification of different modern processor architectures. To our knowledge, no such survey has been published yet.
 \item Describe design, implementation and evaluation of a structured solution to the simulation of \cpuid instruction of Intel IA-32. Analysis of several open source and proprietary simulators has shown that \cpuid simulation is traditionally made ad-hoc, resulting in an entanglement of code which is hard to support.
+\item Define essential user interface facilities that firmware developers demand from a \cpuid simulation. We describe how \cpuid should be represented for inspection, and what types of manupulation should be allowed to an end user.
 \end{enumerate}
 
 \section{Overview of Processor Identification}\label{sec:overview}
@@ -180,7 +185,7 @@ Intel IA-64, also known as Itanium\texttrademark~\cite{itanium-sdm} was conceive
 
 A \cpuid table for an Itanium 2 system is given on Fig.~\ref{fig:itanium-cpuid}. Total capacity of it can be estimated as $5 \times 64 = 320$ bits.
 
-\begin{figure}
+\begin{figure}[htbp]
     \centering
 \begin{verbatim}
 Leaf              Value
@@ -228,11 +233,11 @@ Leaf              Value
 
 \subsection{Intel IA-32 and Intel 64}
 
-The common IBM PC architecture, starting from Intel Pentium\texttrademark and its clones, provides \cpuid instruction~\cite{intelmanual-7vols, amd-sdm-vol1}. The 64-bit extension, known as Intel~64 or AMD64, is unchanged in this regard and we will make no distinction between them. \cpuid takes two input operands in 32-bit registers EAX and ECX (called \textit{leaf} and \textit{subleaf}) and puts the result to four 32-bit registers, namely EAX, EBX, ECX and EDX.
+The common IBM PC architecture, starting from Intel Pentium\texttrademark and its clones, provides \cpuid instruction~\cite{intelmanual-7vols, amd-sdm-vol1}. The 64-bit extension of IA-32, known as Intel~64 or AMD64, did not change \cpuid and we will make no further distinction between them throughout this paper. and we will make no distinction between them. \cpuid takes two input operands in 32-bit registers EAX and ECX (called \textit{leaf} and \textit{subleaf}) and puts the result to four 32-bit registers, namely EAX, EBX, ECX and EDX.
 
 Since its inception it has been extended numerous number of times.\todo{Expand}
 
-On Figure~\ref{fig:real-hw} an output of all defined leaves and subleaves for a modern Intel processor (of microarchitecture Intel Ivy Bridge) is shown. The resulting table contains 25 tuples of 4 values of 32 bit width each, total of more than 3 kbit of information. Essentially a number of features can be deduced from it.
+On Figure~\ref{fig:x86-cpuid} an output of all defined leaves and subleaves for a modern Intel processor (of microarchitecture Intel Ivy Bridge) is shown. The resulting table contains 25 tuples of 4 values of 32 bit width each, total of more than 3 kbit of information. Essentially a number of features can be deduced from it.
 \begin{itemize}
     \item Processor producer brand (leaf 0) and SKU naming (leaves 0x80000002--0x80000004).
     \item Availability of ISA extensions such as 64 bit mode, SSE2/3/4.1/4.2, AVX, MOVBE etc.
@@ -275,7 +280,7 @@ Leaf             Subleaf         EAX         EBX        ECX          EDX
   0x80000008           0      0x3024           0           0           0
 \end{verbatim}
 
-    \caption{Output of \cpuid instruction obtained for Intel\textregistered{} Core\texttrademark{} i5-3450 using \texttt{ggg-cpuid}~\cite{ggg-cpuid}}\label{fig:real-hw}
+    \caption{Output of \cpuid instruction obtained for Intel\textregistered{} Core\texttrademark{} i5-3450 using \texttt{ggg-cpuid}~\cite{ggg-cpuid}}\label{fig:x86-cpuid}
 \end{figure}
 
 \subsection{Comparison of Processor Identification}
@@ -283,21 +288,52 @@ Leaf             Subleaf         EAX         EBX        ECX          EDX
 Based on the presented data several conclusions can be made.
 \begin{itemize}
     \item {CPU} identification facilities differ greatly between architectures. They may be represented by instructions, registers, or groups of both.
-    \item The most common thing that can be specified through a \cpuid is a vendor identification. The next on popularity is indication of ISA extensions.
+    \item The common thing that is usually conveyed through a \cpuid is a vendor identification. The next on popularity is indication of ISA extensions. Lastly, for multiprocessor systems, values for enumerating cores, threads or processors is often given.
     
-    \item The complexity/completeness of \cpuid facilities depends on whether there are requirements to run the same binary code on hardware from multiple vendors and/or of different generations. If, in order to perform efficiently, software must “know” a list of supported instruction extensions and other types of model specific configuration, there has to be a documented way to obtain such knowledge.
+    \item The “verbosity” of \cpuid facilities depends on whether there are requirements to run the same binary code on hardware from multiple vendors and/or of different generations. If, in order to perform efficiently, software must “know” a list of supported instruction extensions and other types of model specific configuration, there has to be a documented way to obtain such knowledge.
     \item Conversely, {CPUs} provided by a single vendor and/or designed for specific software usually provide less means of self-identification. Most microcontrollers for embedded applications hardly provide even an idea of \cpuid, compared to general purpose processors, because software is often written to be run on a specific HW; binaries are not meant to be moved to some other incarnation of the same architecture.
     
 %     \item It is basically hard to define completely what identification facilities should store.
 \end{itemize}
 
-\section{What is so hard about Intel CPUID}\label{sec:ia-32-cpuid}
+\section{What is so Hard about IA-32 CPUID}\label{sec:ia-32-cpuid}
 
-We now concentrate solely on the Intel IA-32 architecture and the single \cpuid instruction. A complete definition of \cpuid in~\cite{intelmanual-7vols} takes about 40 pages.
+We now concentrate solely on the Intel IA-32 architecture and its \cpuid. The previous section demonstrates that this instruction generates significantly more data than any other identification mechanism of the rest of surveyed systems. Indeed, a complete definition of \cpuid in~\cite{intelmanual-7vols} takes about 40 pages. 
 
-There is a number of complications that have resulted from long uncontrolled expansion of the \cpuid.
+\subsection{Subleaves, Dynamic Fields and Topology}
 
-\paragraph{Influence of multiple vendors.} Until recently, there were numerous {CPU} vendors that offered processors compatible with Intel architecture, including IBM, Cyrix, VIA, Centaur, Transmeta etc. By 2014, considerably fewer companies remain --- in particular Intel itself and AMD. A coordination committee to define how new IA-32 extensions are indicated have not existed. Uncontrolled competition lead to the numerous small and subtle but essential differences in implementation. 
+Let's go through all the complications of \cpuid that have to be modeled in a software simulator.
+
+\paragraph{Elements adressing.} An “address” of a particular extension field inside a \cpuid table comprises of four values.
+
+\begin{itemize}
+\item Leaf number. It's the input value of EAX for \cpuid invocation. There are two continuos numerical ranges for leaf values: the first starting from zero and the second starting from 0x80000000 (see Fig.~\ref{fig:x86-cpuid}).
+\item Subleaf number. An input value of ECX for \cpuid invocation. Only a few leaves actually have a non-zero number of subleaves; for example, leaf 4 uses them to distinct between cache levels. For the rest, the subleaf is ignored and the instruction's output does not depend on it.
+\item Output register. Execution of \cpuid always changes four registers, effectively producing a 128-bit value. The register name is specified to choose a 32 bit range inside it.
+\item Bit range. A field can occupy from one to 32 bits of an output register.
+\end{itemize}
+
+In order to fully specify placement of a \cpuid field, all these values must be known. For example, the following notation is used in documentation to denote presence of MMX technology: \texttt{CPUID.01H:EDX.MMX[bit 23]}.
+
+% The non-regularity of leaf--subleaf structure has to be reflected in the model.
+
+\paragraph{Dynamic fields.} Firmware can affect output of \cpuid by enabling and disabling architectural extensions. Let's have some examples.
+\begin{enumerate}
+    \item Disabling multiple cores and Intel HyperThreading technology affects the CPUID.1:EDX.HTT[28].
+    \item Changing bit 18 of register CR4 affects CPUID.1:ECX.OSXSAVE[27].
+    \item A number of bits in the IA32\_MISC\_ENABLE model specific register affect \cpuid. Thus, its bit 16 affects indication of EIST field, bit 34 disables Execute Disable feature and its indication in \cpuid etc.
+\end{enumerate}
+
+These facts mean that one cannot just use a constant array to represent the table in the simulation --- some bits will be dynamic and have to be calculated every time an instruction is run.
+
+\paragraph{Topology-variable elements.} In multiprocessor systems different processor cores inside the same CPU package will have \cpuid returning different values, because certain fields indicate relative position of them (topology). For example, the 8-bit of APIC ID of a core is returned in CPUID.1.EBX[24:31]. This means that for simulation we cannot store a single table for all cores.
+
+Finally, it should be noted that, besides EAX, EBX, ECX and EDX, one more register may be affected by \cpuid execution, namely IA32\_BIOS\_SIGN\_ID MSR.
+
+\subsection{Why CPUID is so complex}
+
+One can find roots of having such entangled (and nonsurprisingly slow) instruction by studying the history of IA-32 architecture.
+\paragraph{Influence of multiple competing vendors.} Until recently, there were numerous {CPU} vendors that offered processors compatible with Intel architecture, including IBM, Cyrix, VIA, Centaur, Transmeta etc. By 2014, considerably fewer companies remain --- in particular Intel itself and AMD. A coordination committee to define how new IA-32 extensions are indicated have not existed. Uncontrolled competition lead to the numerous small and subtle but essential differences in implementation. 
 Until (and for some time after) \cpuid was introduced, a robust identification of IA-32 processor brand and model required surprisingly intricate methods~\cite{cpuid-wars}. At present times, things are somewhat better documented, but still are not controlled in a centralized manner.
 
 \paragraph{Long history that lead to extremely long list of extensions.} With 40 years of backwards-compatible development the IA-32 architecture collected a number of additions. Consider a list of flags which a modern GNU/Linux operating system shows for a \cpuid of the laptop this paper is being written on (Fig.~\ref{fig:flags}). It should be noted that only a part of information from \cpuid is actually present on this list.
@@ -308,23 +344,6 @@ Until (and for some time after) \cpuid was introduced, a robust identification o
 \caption{Part of output of \texttt{cat /proc/cpuinfo} command on GNU/Linux on a recent Intel IA-32 {CPU}}\label{fig:flags}
 \end{figure} 
 
-Now, moving to details of \cpuid operation, we will show more complexity that arises from the semantics of \cpuid instruction.
-
-\paragraph{Elements adressing}
-
-To inspect a value of a particular
-\begin{itemize}
-\item Leaves
-\item Subleaves
-\item Registers
-\item Bit range
-\end{itemize}
-
-\paragraph{Non-constant values} Firmware is able to suppress certain features indicated by \cpuid by manipulating bits of model specific register (MSR) IA32\_MISC\_ENABLE. CPUID leaves more than \texttt{0x3} and less than \texttt{0x80000000} are visible only when IA32\_MISC\_ENABLE.BOOT\_NT4[bit 22] is clear. For example, operating system of BIOS may disable MWAIT instruction by using IA32\_MISC\_ENABLE MSR; disabling MWAIT also clears corresponding CPUID feature flag. Software is also able to manage several architecture extensions and CPUID flags using control register CR4. For example operating system can set OSXSAVE flag to indicate that use of \texttt{XGETBV}, \texttt{XSAVE} and \texttt{XRSTOR} instructions is supported by general software.
-
-\paragraph{Topology-variable elements}
-
-Finally, it should be noted that, besides EAX, EBX, ECX, EDX, one more register may be affected by \cpuid, namely IA32\_SIGNATURE \todo.
 
 \section{Existing Approaches to CPUID Simulation}\label{sec:approaches}
 
@@ -353,21 +372,103 @@ Wind River Simics~\cite{simics} \todo
 
 \section{CPUID Definition and Generation}\label{sec:cpuidgen}
 
-The described approach
+The approach to be described 
 
-It has the following advantages
+\subsection{Starting Considerations}
+
+The following considerations have been taken into account when designing the specification.
 
 \begin{itemize}
-\item Uses natural unit of configuration state --- a field.
-\item In the meantime, it allows its users to operate in terms of 32 bit leaves values which are more convenient and compact in many cases.
-\item
+\item Have as much regular format as possible.
+\item Use a natural unit of \cpuid configuration state --- a field.
+\item Move computation tasks from run-time to the translator
+\item Users often think and operate in terms of 32 bit register values which are more compact and therefore convenient.
 \end{itemize}
+
+\subsection{Specification of CPUID}
+\paragraph{Fields definition.} This is a common part of all models. Here, the exact position, name, and properties of all fields are specified.
+
+Types of the fields:
+\begin{enumerate}
+    \item const ---
+    \item field ---
+    \item fuse ---
+    \item func --- 
+\end{enumerate}
+
+\paragraph{Model Definition.} For every CPU model a separate file section formulates what actual values for fields/fuses/func's the model should have. 
+
+At model definition section, actual values are set up for all fields defined in the fields section.
+
+A (shortened) example of an input specification is given at Fig.~\ref{fig:field-spec}.
+
+\begin{figure}[htbp]
+    \centering
+\begin{verbatim}
+[FIELDS]
+# name    leaf sleaf  reg  range   type flags  defval       comment
+  sse3,      1, None, ecx,     0, field,    0,      0,      Availability of SSE3
+cache_descr, 1, None, eax,  0:31,  fuse,    0,   0x62,      Cache descriptor
+apic_id,     1, None, ebx, 24:31,  func,    0, get_apic_id, APIC ID
+
+[CPUID]
+# class, field,      value
+Atom,    sse3,       1
+Atom,    logical_no, atom_apic_id
+Atom,    4:1,        0x11111111:0x22222222:0x33333333:0x44444444
+
+\end{verbatim}
+\caption{Examples of fields and model definitions. Lines starting with “\#” are ignored}\label{fig:field-spec}
+\end{figure}
+
+\subsection{Translation to Code}
+
+We implemented a translator called \cpuidgen that accepts a file with the specification outlined above and generates source code files, which are included into the build. Fig.~\ref{fig:workflow} outlines the process of integration of the new functionality with the rest of the simulation framework.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[>=latex, minimum width = 3.5cm]
+    \node[draw] (input) {\texttt{cpuid-model-list}}; 
+    \node[draw, rounded corners, right = of input, minimum width = 1cm] (cpuidgen) {\cpuidgen};
+    \node[draw, right = of cpuidgen] (cpuid-sim-func) {\texttt{cpuid-sim.c}}; 
+    \node[draw, above = of cpuid-sim-func.north west, anchor=south west] (cpuid-headers) {\texttt{cpuid-fields.h}}; 
+    \node[draw, below = of cpuid-sim-func.south west, anchor=north west] (cpuid-aux) {\texttt{cpuid-fields.c}}; 
+    \node[draw, below = of cpuid-aux.south west, anchor=north west, align=left, ] (rest-src) {Non-generated CPU\\model files};
+    \node[draw, thick, right = of cpuid-sim-func, minimum width = 1cm, minimum height=1.5cm, yshift=-0.5cm] (cpu-model) {CPU model};
+    
+    \draw[->] (input) -- (cpuidgen);
+    \draw[->] (cpuidgen) -- (cpuid-sim-func.west);
+    \draw[->] (cpuidgen) -- (cpuid-headers.west);
+    \draw[->] (cpuidgen) -- (cpuid-aux.west);
+    \draw[->] (cpuid-sim-func.east) -- (cpu-model);
+    \draw[->] (cpuid-headers.east) -- (cpu-model);
+    \draw[->] (cpuid-aux.east) -- (cpu-model);
+    \draw[->] (rest-src.east) -- (cpu-model);
+    
+\end{tikzpicture}
+\caption{Steps of building for a CPU model} \label{fig:workflow}
+\end{figure} 
+
+The build consists of these steps.
+\begin{enumerate}
+    \item \cpuidgen reads cpuid-model-list and produces three files: a C header with definitions of all structures and function prototypes, a C source for the main simulation function, \texttt{cpuid\_simulate()}, and C source for auxiliary functions.
+    \item New sources are included, built and linked with the rest of the CPU model files.
+\end{enumerate}
+
+\subsection{Generated Code}
+
+The \texttt{cpuid\_simulate()} is a C function that consists of two levels of \texttt{switch} operators --- the outer level is for leaf selection, and the inner --- for subleaf selection, if any subleaves are present. When leaf/subleaf combination is filtered out, all relavant CPUID fields are combined to create four 32-bit values of output registers. This allows to keep algorithmical complexitiy of the algorithm to be $O(1)$ of number of leaves and subleaves, and $O(N)$ of number of fields. The previous implementation performed a linear search for matches against input leaf/subleaf, which, of course, is less efficient. The translator shifts this search to the compilation time, thus saving run-time.
 
 \section{Evaluation}\label{sec:evaluation}
 
 \subsection{Compatibility with existing code}
 
 “legacy” 
+
+\subsection{Overriding Facilities}
+
+\todo the picture of \cpuid dump with overridden fields highlighted.
+
 
 \subsection{Extensions}
 
