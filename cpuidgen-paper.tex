@@ -137,9 +137,43 @@ Examples of values~\cite{xda-arm-id}: Intel (XScale) PXA272 -- 0x69054117, Qualc
 The other way that ARM core can be identified is through a TAP ID~\cite{arm-application-note99} that used ton configure debug software and indicates the information about an ARM core.
 
 \subsection{IBM System z}
-IBM System z10~\cite{ibm-system-z10} provides \texttt{STSI} and \texttt{STIDP} instructions. The information is rather scarce on the subject. \todo{Expand}
 
-The \texttt{STSI} instruction used to determine processor model and model capacity identifier for the base configuration and for any additional changes through update actions.
+IBM System z10~\cite{ibm-system-z10} provides \texttt{STSI} and \texttt{STIDP} instructions to obtain processor information.
+
+The \texttt{STSI} instruction used to determine processor model and model capacity identifier for the base configuration and for any additional changes through update actions (Fig.~\ref{fig:systemz-stsi}).
+
+\newcommand{\memsection}[5]{%
+    % define the height of the memsection
+    \bytefieldsetup{bitheight=#3\baselineskip}%
+    \bitbox[]{4}{%
+        \texttt{#1}% print end address
+        \\
+        % do some spacing
+        \vspace{#3\baselineskip}
+        \vspace{-2\baselineskip}
+        \vspace{-#3pt}
+        \texttt{#2}% print start address
+    }%
+    \rlap{\bitbox{28}{\color{#5}\rule{\width}{\height}}}%
+    \bitbox{28}{#4}% print box with caption
+}
+
+\begin{figure}[htbp]
+\centering
+\begin{bytefield}{32}
+    \memsection{16}{}{4}{Model Capacity Identifier}{gray} \\
+    \memsection{20}{}{4}{Sequence Code}{white} \\
+    \memsection{24}{}{1}{Plant of Manufacture}{white} \\
+    \memsection{25}{}{4}{Model}{white} \\
+    \memsection{29}{}{4}{Model-Permanent-Capacity Identifier}{gray} \\
+    \memsection{33}{}{4}{Model-Temporary-Capacity Identifier}{gray} \\
+    \memsection{37}{}{1}{Model-Capacity Factor}{white} \\
+    \memsection{38}{}{1}{Model-Permanent-Capacity Factor}{white} \\
+    \memsection{39}{}{1}{Model-Temporary-Capacity Factor}{white} \\
+    \memsection{40}{1023}{4}{Reserved}{white} \\
+\end{bytefield}
+\caption{\texttt{STSI} output}\label{fig:systemz-stsi}
+\end{figure}
 
 The \texttt{STIDP} instruction provides information about the processor type, serial number, and logical partition identifier (Fig.~\ref{fig:systemz-stidp}).
 
