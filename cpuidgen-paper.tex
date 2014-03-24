@@ -271,15 +271,15 @@ The common IBM PC architecture, starting from Intel Pentium\texttrademark and it
 
 Since its inception it has been extended numerous number of times.\todo{Expand}
 
-On Figure~\ref{fig:x86-cpuid} an output of all defined leaves and subleaves for a modern Intel processor (of microarchitecture Intel Ivy Bridge) is shown. The resulting table contains 25 tuples of 4 values of 32 bit width each, total of more than 3 kbit of information. Essentially a number of features can be deduced from it.
+On Figure~\ref{fig:x86-cpuid} an output of all defined leaves and subleaves for a modern Intel processor (of microarchitecture Intel Sandy Bridge) is shown. The resulting table contains 24 tuples of 4 values of 32 bit width each, total of more than 3 kbit of information. Essentially a number of features can be deduced from it.
+
 \begin{itemize}
     \item Processor producer brand (leaf 0) and SKU naming (leaves 0x80000002--0x80000004).
     \item Availability of ISA extensions such as 64 bit mode, SSE2/3/4.1/4.2, AVX, MOVBE etc.
     \item Cache configuration of all layers, both in legacy format (leaf 2) and in current format (leaf 4 with subleaves).
-    \item Multi-processor configuration knowledge, such as availability of Intel HyperThreading, relative position inside {CPU} package (topology at leaf 11), presence of {APIC} (interrupt controller).
+    \item Multi-processor configuration knowledge, such as availability of Intel HyperThreading, relative position inside {CPU} package (topology at leaf 0xb), presence of {APIC} (interrupt controller).
     \item Numerous parameters for the implementation, such as addresses widths (leaf 0x80000008), availability of dynamic frequency scaling, supported debugging facilities etc.
 \end{itemize}
-
 
 \begin{figure}[htbp]
 \centering
@@ -287,34 +287,32 @@ On Figure~\ref{fig:x86-cpuid} an output of all defined leaves and subleaves for 
 Leaf             Subleaf         EAX         EBX        ECX          EDX
 ------------------------------------------------------------------------
            0           0         0xd  0x756e6547  0x6c65746e  0x49656e69
-         0x1           0     0x306a9   0x6100800  0x7f9ae3bf  0xbfebfbff
-         0x2           0  0x76035a01    0xf0b0ff           0    0xca0000
-         0x4           0  0x1c004121   0x1c0003f        0x3f           0
-         0x4         0x1  0x1c004122   0x1c0003f        0x3f           0
-         0x4         0x2  0x1c004143   0x1c0003f       0x1ff           0
-         0x4         0x3  0x1c03c163   0x2c0003f      0x1fff         0x6
-         0x5           0        0x40        0x40         0x3      0x1120
+         0x1           0     0x206d6   0x3200800  0x1fbee3ff  0xbfebfbff
+         0x2           0  0x76035a01    0xf0b2ff           0    0xca0000
+         0x4           0  0x3c004121   0x1c0003f        0x3f           0
+         0x4         0x1  0x3c004122   0x1c0003f        0x3f           0
+         0x4         0x2  0x3c004143   0x1c0003f       0x1ff           0
+         0x4         0x3  0x3c07c163   0x4c0003f      0x3fff         0x6
+         0x5           0        0x40        0x40         0x3     0x21120
          0x6           0        0x77         0x2         0x9           0
-         0x7           0           0       0x281           0           0
-         0xa           0   0x7300803           0           0       0x603
-         0xb           0         0x1         0x1       0x100         0x6
-         0xb         0x1         0x4         0x4       0x201         0x6
-         0xb         0x2           0           0         0x2         0x6
-         0xb         0x3           0           0         0x3         0x6
+         0x9           0         0x1           0           0           0
+         0xa           0   0x7300403           0           0       0x603
+         0xb           0         0x1         0x2       0x100         0x3
+         0xb         0x1         0x5        0x10       0x201         0x3
          0xd           0         0x7       0x340       0x340           0
          0xd         0x1         0x1           0           0           0
          0xd         0x2       0x100       0x240           0           0
   0x80000000           0  0x80000008           0           0           0
-  0x80000001           0           0           0         0x1  0x28100800
-  0x80000002           0  0x20202020  0x20202020  0x65746e49  0x2952286c
-  0x80000003           0  0x726f4320  0x4d542865  0x35692029  0x3534332d
-  0x80000004           0  0x50432030  0x20402055  0x30312e33    0x7a4847
+  0x80000001           0           0           0         0x1  0x2c100800
+  0x80000002           0  0x20202020  0x49202020  0x6c65746e  0x20295228
+  0x80000003           0  0x6e6f6558  0x20295228  0x20555043  0x322d3545
+  0x80000004           0  0x20303936  0x20402030  0x30392e32    0x7a4847
   0x80000006           0           0           0   0x1006040           0
   0x80000007           0           0           0           0       0x100
-  0x80000008           0      0x3024           0           0           0
+  0x80000008           0      0x302e           0           0           0
 \end{verbatim}
 
-    \caption{Output of \cpuid instruction obtained for Intel\textregistered{} Core\texttrademark{} i5-3450 using \texttt{ggg-cpuid}~\cite{ggg-cpuid}}\label{fig:x86-cpuid}
+    \caption{Output of \cpuid instruction obtained for Intel\textregistered{} Xeon\textregistered{} CPU E5-2690 using \texttt{ggg-cpuid}~\cite{ggg-cpuid}}\label{fig:x86-cpuid}
 \end{figure}
 
 \subsection{Comparison of Processor Identification}
