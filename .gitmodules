@@ -1,0 +1,3 @@
+[submodule "ggg-cpuid"]
+	path = ggg-cpuid
+	url = https://github.com/grigory-rechistov/ggg-cpuid.git
