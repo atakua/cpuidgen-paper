@@ -132,9 +132,33 @@ The first way is to read info form the Register 0 of the System Control Coproces
 \caption{ARM9 and later Core Family \cpuid{} base register fields}\label{fig:arm-cpuid-v9}
 \end{figure}
 
-Examples of values~\cite{xda-arm-id}: Intel (XScale) PXA272 --- 0x69054117, Qualcomm MSM7200A --- 0x4117b362.
+A \cpuid value for ARM1176JZFS processor (Fig.~\ref{fig:ggg-cpuid-arm}) used in Raspberry Pi computer.
 
 The other way that ARM core can be identified is through a TAP ID~\cite{arm-application-note99} that used ton configure debug software and indicates the information about an ARM core.
+
+\begin{figure}[htbp]
+\centering
+\begin{verbatim}
+CPUID value: 0x410fb767
+Vendor: ARM
+\end{verbatim}
+\caption{Content of \cpuid register for ARM1176JZFS processor using \texttt{ggg-cpuid}~\cite{ggg-cpuid}}\label{fig:ggg-cpuid-arm}
+\end{figure}
+
+% Result of cat /proc/cpuinfo on ARM host
+% processor : 0
+% model name : ARMv6-compatible processor rev 7 (v6l)
+% BogoMIPS : 2.00
+% Features : swp half thumb fastmult vfp edsp java tls 
+% CPU implementer : 0x41
+% CPU architecture: 7
+% CPU variant : 0x0
+% CPU part : 0xb76
+% CPU revision : 7
+
+% Hardware : BCM2708
+% Revision : 000f
+% Serial : 0000000028fb061
 
 \subsection{IBM System z}
 
@@ -514,7 +538,6 @@ A lot of trouble towards to correct \cpuid simulation lies in subleaves. Current
 \subsection{Overriding Facilities}
 
 \todo the picture of \cpuid dump with overridden fields highlighted.
-
 
 \subsection{Extensions}
 
